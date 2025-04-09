@@ -20,6 +20,7 @@
     ========================================================================
 */
 #include <stdio.h>
+#include <string.h>
 #define STACK_SIZE 50 // 최대 스택 크기
 
 int     call_stack[STACK_SIZE];         // Call Stack을 저장하는 배열
@@ -71,14 +72,11 @@ void print_stack()
     printf("================================\n\n");
 }
 
-void push(char c[10], int a) //동시에 push
+void push(char *c, int value) //동시에 push
 {
     SP++;
-    for (int i = 0; i < 20; i++)
-    {
-        stack_info[SP][i] = c[i]; //c배열을 stack_info에 저장
-    }
-    call_stack[SP] = a;
+    strncpy(stack_info[SP], c, 20);
+    call_stack[SP] = value;
 }
 
 void pop() {
@@ -90,10 +88,12 @@ void func1(int arg1, int arg2, int arg3)
 {
     int var_1 = 100;
 
-    push("arg3", 3);
-    push("arg2", 2);
-    push("arg1", 1);// func1의 스택 프레임 형성 (함수 프롤로그 + push)
+    push("arg3", arg3);
+    push("arg2", arg2);
+    push("arg1", arg1);
     push("Return Address", -1);
+    push("func1 SFP", -1);//FP의 조절??
+    push("var_1", var_1);// func1의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
     func2(11, 13);
     // func2의 스택 프레임 제거 (함수 에필로그 + pop)
@@ -105,7 +105,11 @@ void func2(int arg1, int arg2)
 {
     int var_2 = 200;
 
-    // func2의 스택 프레임 형성 (함수 프롤로그 + push)
+    push("arg2", arg2);
+    push("arg1", arg1);
+    push("Return Address", -1);
+    push("func2 SFP", 4);
+    push("var_2", var_2);// func2의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
     func3(77);
     // func3의 스택 프레임 제거 (함수 에필로그 + pop)
@@ -118,7 +122,11 @@ void func3(int arg1)
     int var_3 = 300;
     int var_4 = 400;
 
-    // func3의 스택 프레임 형성 (함수 프롤로그 + push)
+    push("arg1", arg1);
+    push("Return Address", -1);
+    push("func3 SFP", 9);
+    push("var_3", var_3);
+    push("var_4", var_4);// func3의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
 }
 
