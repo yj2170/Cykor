@@ -19,6 +19,7 @@
     반환 주소값을 push할 경우                 : "Return Address"
     ========================================================================
 */
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
 #define STACK_SIZE 50 // 최대 스택 크기
@@ -63,9 +64,9 @@ void print_stack()
             printf("%d : %s", i, stack_info[i]);
 
         if (i == SP)
-            printf("    <=== [esp]\n");
+            printf("    <=== [esp]\n"); //최상단 고정
         else if (i == FP)
-            printf("    <=== [ebp]\n");
+            printf("    <=== [ebp]\n"); //sfp 자리
         else
             printf("\n");
     }
@@ -76,6 +77,7 @@ void push(char *c, int value) //동시에 push
 {
     SP++;
     strncpy(stack_info[SP], c, 20);
+    stack_info[SP][20] = '\0'; //널문자 추가
     call_stack[SP] = value;
 }
 
@@ -92,9 +94,10 @@ void func1(int arg1, int arg2, int arg3)
     push("arg2", arg2);
     push("arg1", arg1);
     push("Return Address", -1);
-    push("func1 SFP", -1);//FP의 조절??
-    push("var_1", var_1);// func1의 스택 프레임 형성 (함수 프롤로그 + push)
+    push("func1 SFP", -1); //FP의 조절??
+    push("var_1", var_1); // func1의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
+
     func2(11, 13);
     // func2의 스택 프레임 제거 (함수 에필로그 + pop)
     print_stack();
@@ -111,6 +114,7 @@ void func2(int arg1, int arg2)
     push("func2 SFP", 4);
     push("var_2", var_2);// func2의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
+
     func3(77);
     // func3의 스택 프레임 제거 (함수 에필로그 + pop)
     print_stack();
