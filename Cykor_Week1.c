@@ -48,6 +48,7 @@ void func3(int arg1);
 */
 void print_stack()
 {
+    printf("%d\n", FP);
     if (SP == -1)
     {
         printf("Stack is empty.\n");
@@ -79,10 +80,13 @@ void push(char *c, int value) //동시에 push
     strncpy(stack_info[SP], c, 20);
     stack_info[SP][20] = '\0'; //널문자 추가
     call_stack[SP] = value;
+    if (strcmp(stack_info[SP], "Return Address") == 0) { //FP 설정
+        FP = SP + 1;
+    }
 }
 
 void pop() {
-
+    SP--;
 }
 
 //func 내부는 자유롭게 추가해도 괜찮으나, 아래의 구조를 바꾸지는 마세요
@@ -94,7 +98,7 @@ void func1(int arg1, int arg2, int arg3)
     push("arg2", arg2);
     push("arg1", arg1);
     push("Return Address", -1);
-    push("func1 SFP", -1); //FP의 조절??
+    push("func1 SFP", -1); //FP의 조절?? => return address 다음에 SFP 등장
     push("var_1", var_1); // func1의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
 
