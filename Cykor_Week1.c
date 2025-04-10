@@ -37,6 +37,8 @@ char    stack_info[STACK_SIZE][20];     // Call Stack 요소에 대한 설명을 저장하�
 */
 int SP = -1;
 int FP = -1;
+int temp[3];
+int i = 0;
 
 void func1(int arg1, int arg2, int arg3);
 void func2(int arg1, int arg2);
@@ -48,7 +50,6 @@ void func3(int arg1);
 */
 void print_stack()
 {
-    printf("%d\n", FP);
     if (SP == -1)
     {
         printf("Stack is empty.\n");
@@ -81,12 +82,25 @@ void push(char *c, int value) //동시에 push
     stack_info[SP][20] = '\0'; //널문자 추가
     call_stack[SP] = value;
     if (strcmp(stack_info[SP], "Return Address") == 0) { //FP 설정
+        temp[i] = FP;
         FP = SP + 1;
+        i++;
     }
 }
 
+int j;
+
 void pop() {
-    SP--;
+    i--;
+    if (i == 0) {
+        SP = -1;
+    }
+    else {
+        for (j = 0; j < temp[i] - temp[i - 1]; j++) {
+            SP--;
+        }
+    }
+    FP = temp[i];
 }
 
 //func 내부는 자유롭게 추가해도 괜찮으나, 아래의 구조를 바꾸지는 마세요
@@ -98,12 +112,12 @@ void func1(int arg1, int arg2, int arg3)
     push("arg2", arg2);
     push("arg1", arg1);
     push("Return Address", -1);
-    push("func1 SFP", -1); //FP의 조절?? => return address 다음에 SFP 등장
+    push("func1 SFP", temp[i-1]); //FP의 조절?? => return address 다음에 SFP 등장
     push("var_1", var_1); // func1의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
 
     func2(11, 13);
-    // func2의 스택 프레임 제거 (함수 에필로그 + pop)
+    pop();// func2의 스택 프레임 제거 (함수 에필로그 + pop)
     print_stack();
 }
 
@@ -115,12 +129,12 @@ void func2(int arg1, int arg2)
     push("arg2", arg2);
     push("arg1", arg1);
     push("Return Address", -1);
-    push("func2 SFP", 4);
-    push("var_2", var_2);// func2의 스택 프레임 형성 (함수 프롤로그 + push)
+    push("func2 SFP", temp[i-1]);
+    push("var_2", var_2); // func2의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
 
     func3(77);
-    // func3의 스택 프레임 제거 (함수 에필로그 + pop)
+    pop();// func3의 스택 프레임 제거 (함수 에필로그 + pop)
     print_stack();
 }
   
@@ -132,7 +146,7 @@ void func3(int arg1)
 
     push("arg1", arg1);
     push("Return Address", -1);
-    push("func3 SFP", 9);
+    push("func3 SFP", temp[i-1]);
     push("var_3", var_3);
     push("var_4", var_4);// func3의 스택 프레임 형성 (함수 프롤로그 + push)
     print_stack();
@@ -143,7 +157,7 @@ void func3(int arg1)
 int main()
 {
     func1(1, 2, 3);
-    // func1의 스택 프레임 제거 (함수 에필로그 + pop)
+    pop();// func1의 스택 프레임 제거 (함수 에필로그 + pop)
     print_stack();
     return 0;
 }
