@@ -73,30 +73,30 @@ void print_stack()
     printf("================================\n\n");
 }
 
-int temp[3];
+int temp[STACK_SIZE];
 int i = 0;
-int frame_size[3];
+int frame_size[STACK_SIZE];
+int frame_start_sp[STACK_SIZE];
+#define RETURN_ADDR "Return Address"
 
 void push(char *c, int value) //동시에 push
 {
     SP++;
     strncpy(stack_info[SP], c, 20);
-    stack_info[SP][20] = '\0'; //널문자 추가
+    stack_info[SP][19] = '\0'; //널문자 추가
     call_stack[SP] = value;
 
-    if (strcmp(stack_info[SP], "Return Address") == 0) { //FP 설정
+    if (strcmp(stack_info[SP], RETURN_ADDR) == 0) { //FP 설정
         temp[i] = FP;
         FP = SP + 1;
         i++;
     }
 }
 
-int j;
-
 void pop() {
     i--;
 
-    for (j = 0; j < frame_size[i]; j++) {
+    for (int j = 0; j < frame_size[i]; j++) {
         SP--;
         if (SP == FP - 1) {
             FP = temp[i];
@@ -104,18 +104,29 @@ void pop() {
     }
 }
 
+void calculate_frame_start() {
+    frame_start_sp[i] = SP + 1;
+}
+
+void calculate_frame_size() {
+    frame_size[i - 1] = SP - frame_start_sp[i - 1] + 1;
+}
+
 //func 내부는 자유롭게 추가해도 괜찮으나, 아래의 구조를 바꾸지는 마세요
 void func1(int arg1, int arg2, int arg3)
 {
     int var_1 = 100;
 
+    calculate_frame_start();
+
     push("arg3", arg3);
     push("arg2", arg2);
     push("arg1", arg1);
-    push("Return Address", -1);
+    push(RETURN_ADDR, -1);
     push("func1 SFP", temp[i - 1]); //FP의 조절?? => return address 다음에 SFP 등장
     push("var_1", var_1); // func1의 스택 프레임 형성 (함수 프롤로그 + push)
-    frame_size[i-1] = SP + 1;
+
+    calculate_frame_size();
     print_stack();
 
     func2(11, 13);
@@ -128,12 +139,15 @@ void func2(int arg1, int arg2)
 {
     int var_2 = 200;
 
+    calculate_frame_start();
+
     push("arg2", arg2);
     push("arg1", arg1);
-    push("Return Address", -1);
+    push(RETURN_ADDR, -1);
     push("func2 SFP", temp[i - 1]);
     push("var_2", var_2); // func2의 스택 프레임 형성 (함수 프롤로그 + push)
-    frame_size[i - 1] = SP - frame_size[i - 2] + 1;
+
+    calculate_frame_size();
     print_stack();
 
     func3(77);
@@ -147,12 +161,15 @@ void func3(int arg1)
     int var_3 = 300;
     int var_4 = 400;
 
+    calculate_frame_start();
+
     push("arg1", arg1);
-    push("Return Address", -1);
+    push(RETURN_ADDR, -1);
     push("func3 SFP", temp[i - 1]);
     push("var_3", var_3);
     push("var_4", var_4);// func3의 스택 프레임 형성 (함수 프롤로그 + push)
-    frame_size[i - 1] = SP - frame_size[i-2] - frame_size[i-3] + 1;
+
+    calculate_frame_size();
     print_stack();
 }
 

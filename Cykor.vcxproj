@@ -128,7 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Cykor_Week1.c">
+    <ClCompile Include="callstack_2025350202_전유정.c">
       <DeploymentContent>true</DeploymentContent>
     </ClCompile>
   </ItemGroup>
